@@ -93,13 +93,14 @@ def _cargo_build_script_impl(ctx):
         stdout = ctx.actions.declare_file(ctx.label.name + ".stdout.log"),
         stderr = ctx.actions.declare_file(ctx.label.name + ".stderr.log"),
     )
-
+    
     pkg_name = name_to_pkg_name(ctx.label.name)
 
     toolchain_tools = [toolchain.all_files]
 
     cc_toolchain = find_cpp_toolchain(ctx)
-
+    print("CC toolchain")
+    print(cc_toolchain)
     # Start with the default shell env, which contains any --action_env
     # settings passed in on the command line.
     env = dict(ctx.configuration.default_shell_env)
@@ -115,6 +116,8 @@ def _cargo_build_script_impl(ctx):
         "TARGET": toolchain.target_flag_value,
         # OUT_DIR is set by the runner itself, rather than on the action.
     })
+    print("ENV")
+    print(env)
 
     # This isn't exactly right, but Bazel doesn't have exact views of "debug" and "release", so...
     env.update({
@@ -205,6 +208,7 @@ def _cargo_build_script_impl(ctx):
     )
 
     links = ctx.attr.links or ""
+    print ("LINKS = {}".format(links))
 
     # dep_env_file contains additional environment variables coming from
     # direct dependency sys-crates' build scripts. These need to be made
@@ -232,6 +236,7 @@ def _cargo_build_script_impl(ctx):
             build_script_inputs.append(dep_env_file)
             for dep_build_info in dep[rust_common.dep_info].transitive_build_infos.to_list():
                 build_script_inputs.append(dep_build_info.out_dir)
+    print("BUILD SCRIPT INPUTS = {}".format(build_script_inputs))
 
     ctx.actions.run(
         executable = ctx.executable._cargo_build_script_runner,
